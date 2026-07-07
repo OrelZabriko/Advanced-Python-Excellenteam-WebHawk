@@ -1,6 +1,5 @@
 import bcrypt
-from utils.constants import ENCODING
-
+from services.users.utils.constants import ENCODING
 
 def hash_password(plain_password: str) -> str:
     hashed = bcrypt.hashpw(plain_password.encode(ENCODING), bcrypt.gensalt())
