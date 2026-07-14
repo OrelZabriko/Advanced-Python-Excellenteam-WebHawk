@@ -1,4 +1,4 @@
--- Security Engine schema: logs_security and limit_rate tables
+-- logs_security and limit_rate tables
 
 CREATE TABLE IF NOT EXISTS logs_security (
     id           SERIAL PRIMARY KEY,
