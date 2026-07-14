@@ -29,3 +29,29 @@ class SecurityService:
                 return True
                 
         return False
+
+    @staticmethod
+    def detect_xss(input_str: str) -> bool:
+        """
+        Cross-Site Scripting (XSS) Detector:
+        Scans input for script tags and dangerous event handlers and
+        returns True if an XSS pattern is detected.
+        """
+        if not input_str or not isinstance(input_str, str):
+            return False
+            
+        lower = input_str.lower()
+        
+        patterns = [
+            r"(<\s*script.*?>)",                                # <script> tags
+            r"(javascript\s*:)",                                # javascript: URI
+            r"(on(load|error|click|mouseover|focus|blur)\s*=)", # Inline event handlers
+            r"(<\s*iframe.*?>)",                                # <iframe> tags
+            r"(<\s*object.*?>)",                                # <object> tags
+        ]
+        
+        for pattern in patterns:
+            if re.search(pattern, lower):
+                return True
+                
+        return False
