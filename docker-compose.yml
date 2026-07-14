@@ -12,6 +12,7 @@ services:
     volumes:
       - webhawk_pg_data:/var/lib/postgresql/data
       - ./db/users.sql:/docker-entrypoint-initdb.d/01-users.sql
+      - ./db/security.sql:/docker-entrypoint-initdb.d/02-security.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
