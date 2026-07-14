@@ -1,4 +1,23 @@
 import re
+from repositories.security_repository import SecurityRepository
+
+
+def _collect_all_strings(node) -> list:
+    """
+    Recursively extracts all string values from a JSON object (dict/list/str),
+    so every text field sent by the client can be scanned for attack patterns.
+    """
+    results = []
+    if isinstance(node, str):
+        results.append(node)
+    elif isinstance(node, dict):
+        for value in node.values():
+            results.extend(_collect_all_strings(value))
+    elif isinstance(node, list):
+        for item in node:
+            results.extend(_collect_all_strings(item))
+    return results
+
 
 class SecurityService:
     @staticmethod
@@ -55,3 +74,43 @@ class SecurityService:
                 return True
                 
         return False
+
+    @staticmethod
+    def analyze_request(payload: dict) -> dict:
+        """
+        Main entry point for the security engine.
+        Receives the full JSON payload, runs SQLi + XSS + rate limit checks,
+        logs the result to logs_security, and returns a verdict dict.
+        """
+        endpoint = payload.get("endpoint", "")
+        method   = payload.get("method", "")
+        ip       = payload.get("ip", "")
+
+        # Collect all string values from body, query_params, path_params
+        all_texts = []
+        all_texts.extend(_collect_all_strings(payload.get("query_params", {})))
+        all_texts.extend(_collect_all_strings(payload.get("path_params", {})))
+        all_texts.extend(_collect_all_strings(payload.get("body", {})))
+
+        # --- Check 1: SQL Injection ---
+        for text in all_texts:
+            if SecurityService.detect_sqli(text):
+                SecurityRepository.log_request(endpoint, method, "sqli", True, ip)
+                return {"allowed": False, "attack_type": "sqli", "reason": "SQL injection pattern detected"}
+
+        # --- Check 2: XSS ---
+        for text in all_texts:
+            if SecurityService.detect_xss(text):
+                SecurityRepository.log_request(endpoint, method, "xss", True, ip)
+                return {"allowed": False, "attack_type": "xss", "reason": "XSS pattern detected"}
+
+        # --- Check 3: Rate Limiting ---
+        # Track requests per IP per endpoint in a time window (1 minute, max 100 requests)
+        is_blocked = SecurityRepository.update_and_check_rate_limit(endpoint, ip, 1, 100)
+        if is_blocked:
+            SecurityRepository.log_request(endpoint, method, "rate_limit", True, ip)
+            return {"allowed": False, "attack_type": "rate_limit", "reason": "Rate limit exceeded for this IP"}
+
+        # All checks passed — log as clean and allow
+        SecurityRepository.log_request(endpoint, method, "", False, ip)
+        return {"allowed": True}
