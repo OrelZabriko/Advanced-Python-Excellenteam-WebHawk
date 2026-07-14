@@ -35,5 +35,21 @@ services:
       postgres:
         condition: service_healthy
 
+  security-engine:
+    build:
+      context: .
+      dockerfile: services/security-engine/Dockerfile
+    container_name: webhawk-security
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   webhawk_pg_data:
