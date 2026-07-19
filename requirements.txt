@@ -3,4 +3,11 @@ psycopg2-binary==2.9.9
 bcrypt==4.2.0
 PyJWT==2.9.0
 python-dotenv==1.0.1
+# The middleware is an HTTP client as well as a server: it calls the users,
+# security-engine, and backend-registry services, then forwards allowed
+# requests to the registered real backend.
+requests==2.32.3
+# WSGI server for Docker. Not usable on native Windows (gunicorn depends on
+# fcntl, which only exists on Unix) - run `flask run` or `python app.py`
+# there instead. See the README's "Running natively on Windows" section.
 gunicorn==22.0.0

@@ -1,0 +1,72 @@
+# ============================================================
+# WebHawk (Python / Flask) - .gitignore
+# Development happens on native Windows, in VS Code and PyCharm.
+# Both editors' project folders are ignored, since they hold
+# machine-specific paths (interpreter location, run configs) that
+# would conflict between machines if committed.
+# ============================================================
+
+# --- Secrets ---
+# Real credentials live only here. .env.example is the committed template.
+.env
+.env.local
+.env.*.local
+
+# --- Python bytecode / build artifacts ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Virtual environments ---
+# Windows convention is usually .venv\ or venv\ at the repo root.
+venv/
+.venv/
+env/
+ENV/
+
+# --- Testing / coverage ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# --- VS Code ---
+# Everything ignored except settings/extensions that are genuinely shared
+# (the "!" lines re-include them). Same approach the C++ repo uses for
+# .vscode/c_cpp_properties.json.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# --- PyCharm / JetBrains ---
+# .idea/ holds the absolute path to each person's Python interpreter and
+# their local run configurations - never portable between machines.
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# --- Windows OS junk ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+# Created by Windows when a file is downloaded from the internet (e.g. a
+# zip pulled from the browser). Harmless, but noisy in `git status`.
+*Zone.Identifier*
+
+# --- macOS / Linux (teammates may not all be on Windows) ---
+.DS_Store
+*~
+
+# --- Logs ---
+*.log
+logs/
