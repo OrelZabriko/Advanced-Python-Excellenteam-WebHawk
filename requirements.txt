@@ -4,7 +4,7 @@ bcrypt==4.2.0
 PyJWT==2.9.0
 python-dotenv==1.0.1
 # The middleware is an HTTP client as well as a server: it calls the users,
-# security-engine, and backend-registry services, then forwards allowed
+# security_engine, and backend_registry services, then forwards allowed
 # requests to the registered real backend.
 requests==2.32.3
 # WSGI server for Docker. Not usable on native Windows (gunicorn depends on

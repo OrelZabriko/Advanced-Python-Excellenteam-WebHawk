@@ -66,6 +66,42 @@ def list_backends():
 
 @backend_bp.put("/backends/<int:backend_id>")
 def update_backend(backend_id):
+    """
+    PUT /backends/<id> - updates a registration's service_name and target_url.
+
+    Deliberately cannot change api_key or active:
+      - api_key is issued once at creation and never rotated through this endpoint, so a typo in an
+        update can't silently invalidate the key a developer already deployed to their own backend.
+      - active has its own endpoint (PATCH /backends/<id>/status), since pausing protection is a
+        different intent from correcting a URL.
+
+    Request body (both fields required):
+        { "service_name": "my-shop-api", "target_url": "https://..." }
+
+    Responses:
+        200 - updated
+        400 - a field is missing, or target_url isn't http:// or https://
+        404 - no registration with this id
+    """
+    # get_json() raises a 415/400 and aborts the request if the body isn't
+    # valid JSON or the Content-Type header is missing. silent=True makes it
+    # return None instead of raising, and the `or {}` turns that None into an
+    # empty dict.
+    #
+    # The point is who gets to decide what the error looks like. Without
+    # this, a request with no body would be rejected by Flask itself, with
+    # Flask's own HTML error page - before any of this function's own
+    # validation ever runs. With it, an empty body flows through as {},
+    # data.get("service_name") returns None, and the service layer raises
+    # ServiceError("service_name and target_url are required", 400) - a
+    # clean JSON error, in the same shape as every other error this API returns.
+    #
+    # data.get(...) rather than data[...] for the same reason: a missing key
+    # returns None instead of raising KeyError, so validation stays in the
+    # service layer where every other rule lives, instead of being split
+    # between an exception here and a check there.
+    #
+    # This matches the pattern already used in the users service's routes.
     data = request.get_json(silent=True) or {}
     try:
         backend_service.update_backend(

@@ -1,109 +1,79 @@
+version: '3.8'
+
 services:
   postgres:
-    image: postgres:16
-    container_name: webhawk-postgres
-    restart: unless-stopped
+    image: postgres:15
+    container_name: webhawk_db
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
-      - webhawk_pg_data:/var/lib/postgresql/data
-      # Files in docker-entrypoint-initdb.d run in filename order, and ONLY
-      # on a completely empty data directory. Because webhawk_pg_data above
-      # persists between runs, adding a new .sql file here does nothing to an
-      # already-initialized database - it has to be dropped first:
-      #   docker compose down -v && docker compose up
-      - ./db/users.sql:/docker-entrypoint-initdb.d/01-users.sql
-      - ./db/security.sql:/docker-entrypoint-initdb.d/02-security.sql
-      - ./db/backend_registry.sql:/docker-entrypoint-initdb.d/03-backend-registry.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - ./db:/docker-entrypoint-initdb.d
+    restart: always
 
-  users-service:
+  security_engine:
+    build:
+      context: .
+      dockerfile: services/security_engine/Dockerfile
+    container_name: webhawk_security
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      # Overrides DB_HOST from .env - inside Docker, "postgres" is the
+      # service name above, resolved automatically by Docker's internal DNS.
+      - DB_HOST=postgres
+
+  users:
     build:
       context: .
       dockerfile: services/users/Dockerfile
-    container_name: webhawk-users
-    restart: unless-stopped
+    container_name: webhawk_users
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
     env_file:
       - .env
     environment:
-      # Overrides DB_HOST from .env: inside the Docker network, "postgres" is
-      # the service name above, resolved by Docker's internal DNS.
-      DB_HOST: postgres
-    ports:
-      - "5000:5000"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - DB_HOST=postgres
 
-  security-engine:
+  backend_registry:
     build:
       context: .
-      dockerfile: services/security-engine/Dockerfile
-    container_name: webhawk-security
-    restart: unless-stopped
+      dockerfile: services/backend_registry/Dockerfile
+    container_name: webhawk_backend_registry
+    ports:
+      - "8083:8080"
+    depends_on:
+      - postgres
     env_file:
       - .env
     environment:
-      DB_HOST: postgres
-    ports:
-      - "8081:8081"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - DB_HOST=postgres
 
-  # ----------------------------------------------------------------
-  # The two services below are not implemented yet (backend_registry,
-  # middleware). vulnerable_backend was deliberately left out entirely -
-  # see the project chat log for why it isn't required. Uncomment each
-  # service as its code lands, so `docker compose up` keeps working in
-  # the meantime instead of failing on a missing Dockerfile.
-  # ----------------------------------------------------------------
-
-  # backend-registry:
-  #   build:
-  #     context: .
-  #     dockerfile: services/backend_registry/Dockerfile
-  #   container_name: webhawk-backend-registry
-  #   restart: unless-stopped
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     DB_HOST: postgres
-  #   ports:
-  #     - "8083:8083"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-
+  # middleware is not implemented yet. Uncomment once its code lands, so
+  # `docker compose up` keeps working in the meantime instead of failing
+  # on a missing Dockerfile.
   # middleware:
   #   build:
   #     context: .
   #     dockerfile: middleware/Dockerfile
-  #   container_name: webhawk-middleware
-  #   restart: unless-stopped
-  #   env_file:
-  #     - .env
-  #   # The middleware is the only service that talks to no database at all -
-  #   # it reaches the other three over HTTP, so it needs their URLs instead
-  #   # of DB credentials.
-  #   environment:
-  #     USERS_URL: http://users-service:5000
-  #     SECURITY_ENGINE_URL: http://security-engine:8081
-  #     BACKEND_REGISTRY_URL: http://backend-registry:8083
+  #   container_name: webhawk_middleware
+  #   # The ONLY service reachable from outside Docker - the project's single
+  #   # public entry point. Everything else is internal-only (see above).
   #   ports:
   #     - "8080:8080"
   #   depends_on:
-  #     - users-service
-  #     - security-engine
-  #     - backend-registry
-
-volumes:
-  webhawk_pg_data:
+  #     - postgres
+  #     - security_engine
+  #     - users
+  #     - backend_registry
+  #   env_file:
+  #     - .env

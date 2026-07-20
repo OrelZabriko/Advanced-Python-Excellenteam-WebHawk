@@ -38,8 +38,9 @@ htmlcov/
 
 # --- VS Code ---
 # Everything ignored except settings/extensions that are genuinely shared
-# (the "!" lines re-include them). Same approach the C++ repo uses for
-# .vscode/c_cpp_properties.json.
+# (the "!" lines re-include them), so teammate-specific window layout and
+# machine paths don't get committed, while shared editor fixes (like SQL
+# language settings) still reach everyone on clone.
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
