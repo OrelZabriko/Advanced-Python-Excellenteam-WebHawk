@@ -111,6 +111,10 @@ class SecurityService:
             SecurityRepository.log_request(endpoint, method, "rate_limit", True, ip)
             return {"allowed": False, "attack_type": "rate_limit", "reason": "Rate limit exceeded for this IP"}
 
-        # All checks passed — log as clean and allow
+        # All checks passed — log as clean and allow.
+        # Contract A requires attack_type and reason to be present as
+        # explicit null on a clean request, not omitted - so callers (the
+        # middleware) can rely on both keys always existing in the response,
+        # instead of needing a .get() with a default everywhere they read it.
         SecurityRepository.log_request(endpoint, method, "", False, ip)
-        return {"allowed": True}
+        return {"allowed": True, "attack_type": None, "reason": None}

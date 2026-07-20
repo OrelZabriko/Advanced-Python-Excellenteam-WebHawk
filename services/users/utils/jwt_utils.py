@@ -10,7 +10,7 @@ from services.users.utils.constants import (
 def generate_token(user_id: int, email: str, jti: str = None):
     """Returns (token_string, expires_at_datetime, jti)."""
     now = datetime.datetime.now(datetime.timezone.utc)
-    expires_at = now + datetime.timedelta(minutes=Config.JWT_EXPIRY_MINUTES)
+    expires_at = now + datetime.timedelta(seconds=Config.JWT_EXPIRY_SECS)
     jti = jti or str(uuid.uuid4())
 
     payload = {

@@ -1,10 +1,10 @@
 from flask import Flask
-from services.users.routes.auth_routes import auth_bp
+from services.backend_registry.routes.backend_routes import backend_bp
 
 
 def create_app():
     app = Flask(__name__)
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(backend_bp)
     return app
 
 

@@ -1,0 +1,31 @@
+# ============================================================
+# What Docker must NOT copy into an image
+# ============================================================
+# .gitignore has no effect on `COPY . /app` - only this file does. Without
+# it, .env (real secrets) would be baked permanently into the image layers,
+# where it stays readable even after the file is "deleted" in a later layer.
+# Secrets are injected at runtime instead, via `env_file: .env` in
+# docker-compose.yml.
+.env
+.env.local
+
+.git/
+.gitignore
+.gitattributes
+
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+.vscode/
+.idea/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docs and test collections aren't needed inside a running container.
+docs/
+postman/
+README.md
