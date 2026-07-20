@@ -21,9 +21,9 @@ backend it protects.
 | Compose service | Source folder | Host port | Role |
 |---|---|---|---|
 | `middleware` | `middleware/` | **8080** | Public entry point. All protected traffic. |
-| `security-engine` | `services/security-engine/` | 8081 | SQLi / XSS / rate-limit detection. |
-| `users-service` | `services/users/` | 8082 | Registration, login, JWT issue and revoke. |
-| `backend-registry` | `services/backend_registry/` | 8083 | Backend registration and API key issuance. |
+| `security_engine` | `services/security_engine/` | 8081 | SQLi / XSS / rate-limit detection. |
+| `users` | `services/users/` | 8082 | Registration, login, JWT issue and revoke. |
+| `backend_registry` | `services/backend_registry/` | 8083 | Backend registration and API key issuance. |
 | `postgres` | — | 5432 | Shared database. |
 
 **On the port numbers:** each service has two ports that serve different
