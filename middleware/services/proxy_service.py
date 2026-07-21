@@ -19,7 +19,7 @@ _HOP_BY_HOP_HEADERS = {
 }
 
 
-def blocked_response(attack_type):
+def _blocked_response(attack_type):
     """
     Contract C's blocked-response shape - deliberately generic. It carries
     attack_type but never `reason`: returning the reason would tell an
@@ -47,7 +47,7 @@ def _internal_error(context: str):
     return jsonify({"error": "Internal server error"}), 500
 
 
-def forward_to_real_backend(req: Request, target_url: str):
+def _forward_to_real_backend(req: Request, target_url: str):
     """
     Step 4, the final step on the "allowed" path: forward the request to the
     registered backend and pass its response back to the client as-is.
@@ -93,7 +93,7 @@ def forward_to_real_backend(req: Request, target_url: str):
     )
 
 
-def call_analyze(req: Request, target_url: str):
+def _call_analyze(req: Request, target_url: str):
     """Step 3: ask security_engine whether this request is safe (Contract A)."""
     payload = build_analyze_payload(req)
 
@@ -114,12 +114,12 @@ def call_analyze(req: Request, target_url: str):
         # always present (as null on a clean request), but the middleware
         # shouldn't crash with a KeyError if that ever regresses - it should
         # still block the request, just without naming the attack type.
-        return blocked_response(result.get("attack_type"))
+        return _blocked_response(result.get("attack_type"))
 
-    return forward_to_real_backend(req, target_url)
+    return _forward_to_real_backend(req, target_url)
 
 
-def validate_jwt(req: Request, target_url: str):
+def _validate_jwt(req: Request, target_url: str):
     """
     Step 2: validate the caller's JWT by calling the users service's own
     /validate endpoint, rather than decoding it here - so JWT_SECRET only ever
@@ -159,7 +159,7 @@ def validate_jwt(req: Request, target_url: str):
     if not result.get("valid"):
         return jsonify({"error": "Invalid or expired token"}), 401
 
-    return call_analyze(req, target_url)
+    return _call_analyze(req, target_url)
 
 
 def handle_request(req: Request):
@@ -208,4 +208,4 @@ def handle_request(req: Request):
     if not result.get("active"):
         return jsonify({"error": "This backend's protection is currently paused"}), 403
 
-    return validate_jwt(req, result["target_url"])
+    return _validate_jwt(req, result["target_url"])
