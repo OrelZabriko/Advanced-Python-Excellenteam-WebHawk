@@ -76,6 +76,8 @@ def _require_supported_algorithm(value: str) -> None:
         )
 
 
-_require("JWT_SECRET", Config.JWT_SECRET)
+def require_jwt_config() -> None:
+    _require("JWT_SECRET", Config.JWT_SECRET)
+    _require_supported_algorithm(Config.JWT_ALGORITHM)
+
 _require("DB_PASSWORD", Config.DB_PASSWORD)
-_require_supported_algorithm(Config.JWT_ALGORITHM)

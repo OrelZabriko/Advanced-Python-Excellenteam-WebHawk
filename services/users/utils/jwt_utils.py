@@ -1,10 +1,12 @@
 import uuid
 import jwt
 import datetime
-from services.shared.config import Config
+from services.shared.config import Config, require_jwt_config
 from services.users.utils.constants import (
     CLAIM_USER_ID, CLAIM_EMAIL, CLAIM_ISSUED_AT, CLAIM_EXPIRES_AT, CLAIM_TOKEN_ID
 )
+
+require_jwt_config()
 
 
 def generate_token(user_id: int, email: str, jti: str = None):

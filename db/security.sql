@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS logs_security (
     id           SERIAL PRIMARY KEY,
-    endpoint     VARCHAR(255) NOT NULL,ד
+    endpoint     VARCHAR(255) NOT NULL,
     method       VARCHAR(10)  NOT NULL,
     attack_type  VARCHAR(50),
     blocked      BOOLEAN      NOT NULL DEFAULT FALSE,

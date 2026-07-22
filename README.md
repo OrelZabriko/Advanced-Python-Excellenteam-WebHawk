@@ -147,11 +147,22 @@ parsed as the literal value `postgres # docker` and breaks the connection.
 
 With the venv active and `.env` filled in:
 
-```powershell
+```bash
 docker compose up --build
 ```
-
-Postgres initializes itself from the `.sql` files in `db/` on first start.
+ 
+This builds and starts every service on one Docker network, and initialises
+Postgres automatically from the `.sql` files in `db/`.
+ 
+To reset completely - dropping all users, registrations, logs and rate-limit
+counters:
+ 
+```bash
+docker compose down -v && docker compose up --build
+```
+ 
+The `-v` flag is what drops the Postgres volume. Without it, old rows survive
+across restarts, which will make rate-limit tests behave unexpectedly.
 
 ---
 
@@ -178,7 +189,6 @@ gunicorn depends on `fcntl`, a module that only exists on Unix/Linux — it
 
 ## Postman
 
-Test collections live in `postman/`. `webhawk_security_engine.postman_collection.json` documents the **intermediate testing** done directly against security-engine on port 8081, back when the middleware didn't exist yet and the service was reachable on its own - kept as-is, as a record of that stage. A separate, final collection - testing the whole system end-to-end through the middleware (`localhost:8080`, with an `X-API-Key` header identifying which registered backend to use - see Security notes above) - will be added once that flow is verified working.
 
 
 ## Postman Examples

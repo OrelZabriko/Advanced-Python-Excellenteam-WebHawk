@@ -1,5 +1,5 @@
 import re
-from repositories.security_repository import SecurityRepository
+from services.security_engine.repositories.security_repository import SecurityRepository
 
 
 def _collect_all_strings(node) -> list:
@@ -106,7 +106,7 @@ class SecurityService:
 
         # --- Check 3: Rate Limiting ---
         # Track requests per IP per endpoint in a time window (1 minute, max 100 requests)
-        is_blocked = SecurityRepository.update_and_check_rate_limit(endpoint, ip, 1, 100)
+        is_blocked = SecurityRepository.update_and_check_rate_limit(endpoint, ip)
         if is_blocked:
             SecurityRepository.log_request(endpoint, method, "rate_limit", True, ip)
             return {"allowed": False, "attack_type": "rate_limit", "reason": "Rate limit exceeded for this IP"}
