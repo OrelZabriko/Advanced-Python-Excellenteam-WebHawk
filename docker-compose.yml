@@ -58,22 +58,19 @@ services:
     environment:
       - DB_HOST=postgres
 
-  # middleware is not implemented yet. Uncomment once its code lands, so
-  # `docker compose up` keeps working in the meantime instead of failing
-  # on a missing Dockerfile.
-  # middleware:
-  #   build:
-  #     context: .
-  #     dockerfile: middleware/Dockerfile
-  #   container_name: webhawk_middleware
-  #   # The ONLY service reachable from outside Docker - the project's single
-  #   # public entry point. Everything else is internal-only (see above).
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - postgres
-  #     - security_engine
-  #     - users
-  #     - backend_registry
-  #   env_file:
-  #     - .env
+  middleware:
+    build:
+      context: .
+      dockerfile: middleware/Dockerfile
+    container_name: webhawk_middleware
+    # The ONLY service reachable from outside Docker - the project's single
+    # public entry point. Everything else is internal-only (see above).
+    ports:
+      - "8080:8080"
+    depends_on:
+      - security_engine
+      - users
+      - backend_registry
+    # No env_file here, unlike every other service: the middleware never touches Postgres and
+    # reads no environment variables at all. The three internal service addresses it needs
+    # are constants in middleware/clients/service_endpoints.py.

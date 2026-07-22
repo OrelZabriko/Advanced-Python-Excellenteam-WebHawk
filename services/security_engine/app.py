@@ -1,21 +1,15 @@
-from flask import Flask, request, jsonify
-from services.security_service import SecurityService
+from flask import Flask
+from services.security_engine.routes.analyze_routes import analyze_bp
+from services.shared.error_handlers import register_error_handlers
 
-app = Flask(__name__)
 
-
-@app.route("/analyze", methods=["POST"])
-def analyze():
-    payload = request.get_json()
-    if payload is None:
-        return jsonify({"error": "Invalid JSON body"}), 400
-
-    if not all(k in payload for k in ("endpoint", "method", "ip")):
-        return jsonify({"error": "Missing required fields: endpoint, method, ip"}), 400
-
-    result = SecurityService.analyze_request(payload)
-    return jsonify(result), 200
+def create_app():
+    app = Flask(__name__)
+    app.register_blueprint(analyze_bp)
+    register_error_handlers(app)
+    return app
 
 
 if __name__ == "__main__":
+    app = create_app()
     app.run(host="0.0.0.0", port=8080, debug=True)

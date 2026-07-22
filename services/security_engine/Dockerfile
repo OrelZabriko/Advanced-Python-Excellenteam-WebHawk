@@ -1,12 +1,13 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY services/security_engine/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY services/security_engine/ .
+COPY services/shared/ ./services/shared/
+COPY services/security_engine/ ./services/security_engine/
 
-ENV PYTHONPATH=/app
+EXPOSE 8080
 
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "services.security_engine.app:create_app()"]
