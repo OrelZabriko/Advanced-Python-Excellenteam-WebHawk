@@ -1,0 +1,24 @@
+# ============================================================
+# Line-ending normalization
+# ============================================================
+# Everything is stored in the repo as LF, regardless of which OS the file
+# was committed from. Without this, files edited on Windows get committed
+# with CRLF, and two concrete things break:
+#
+#   1. .env parsing - a trailing \r ends up inside the value, so DB_HOST
+#      becomes "postgres\r" and the connection fails with a confusing error
+#      that looks nothing like a line-ending problem.
+#   2. Shell scripts and SQL files copied into a Linux Docker image fail to
+#      run, since the interpreter sees the \r as part of the command.
+#
+# `text=auto eol=lf` means: Git decides which files are text, and always
+# checks them out with LF - including on Windows. Both VS Code and PyCharm
+# handle LF files natively, so nothing needs changing in either editor.
+* text=auto eol=lf
+
+# Explicitly binary - never normalize these.
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary
+*.zip binary

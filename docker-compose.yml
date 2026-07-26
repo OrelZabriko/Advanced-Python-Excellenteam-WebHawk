@@ -1,55 +1,76 @@
+version: '3.8'
+
 services:
   postgres:
-    image: postgres:16
-    container_name: webhawk-postgres
-    restart: unless-stopped
+    image: postgres:15
+    container_name: webhawk_db
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
-      - webhawk_pg_data:/var/lib/postgresql/data
-      - ./db/users.sql:/docker-entrypoint-initdb.d/01-users.sql
-      - ./db/security.sql:/docker-entrypoint-initdb.d/02-security.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - ./db:/docker-entrypoint-initdb.d
+    restart: always
 
-  users-service:
+  security_engine:
+    build:
+      context: .
+      dockerfile: services/security_engine/Dockerfile
+    container_name: webhawk_security
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      # Overrides DB_HOST from .env - inside Docker, "postgres" is the
+      # service name above, resolved automatically by Docker's internal DNS.
+      - DB_HOST=postgres
+
+  users:
     build:
       context: .
       dockerfile: services/users/Dockerfile
-    container_name: webhawk-users
-    restart: unless-stopped
+    container_name: webhawk_users
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
     env_file:
       - .env
     environment:
-      DB_HOST: postgres
-    ports:
-      - "5000:5000"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - DB_HOST=postgres
 
-  security-engine:
+  backend_registry:
     build:
       context: .
-      dockerfile: services/security-engine/Dockerfile
-    container_name: webhawk-security
-    restart: unless-stopped
+      dockerfile: services/backend_registry/Dockerfile
+    container_name: webhawk_backend_registry
+    ports:
+      - "8083:8080"
+    depends_on:
+      - postgres
     env_file:
       - .env
     environment:
-      DB_HOST: postgres
-    ports:
-      - "8081:8081"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - DB_HOST=postgres
 
-volumes:
-  webhawk_pg_data:
+  middleware:
+    build:
+      context: .
+      dockerfile: middleware/Dockerfile
+    container_name: webhawk_middleware
+    # The ONLY service reachable from outside Docker - the project's single
+    # public entry point. Everything else is internal-only (see above).
+    ports:
+      - "8080:8080"
+    depends_on:
+      - security_engine
+      - users
+      - backend_registry
+    # No env_file here, unlike every other service: the middleware never touches Postgres and
+    # reads no environment variables at all. The three internal service addresses it needs
+    # are constants in middleware/clients/service_endpoints.py.

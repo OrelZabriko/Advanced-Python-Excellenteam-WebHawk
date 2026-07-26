@@ -1,5 +1,3 @@
--- WebHawk: Users service schema (reference only — already applied via C++ side)
-
 CREATE TABLE IF NOT EXISTS users (
     id              SERIAL PRIMARY KEY,
     email           VARCHAR(255) UNIQUE NOT NULL,
