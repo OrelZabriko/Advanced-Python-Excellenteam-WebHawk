@@ -779,7 +779,12 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 200 OK ```
 -
 ```json
-  {"active": true, "found": true, "service_name": "google-api", "target_url": "http://demo-backend:8080"}
+  {
+    "active": true, 
+    "found": true, 
+    "service_name": "google-api", 
+    "target_url": "http://demo-backend:8080"
+  }
 ```
 
 
@@ -792,7 +797,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 200 OK ```
 -
 ```json
-  {"found": false}
+  {
+    "found": false
+  }
 ```
 - Confirms an unknown key returns `200` with `found: false`, not a `404` —
   "not found" is a normal business outcome here, per Contract B.
@@ -837,7 +844,12 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 200 OK ```
 -
 ```json
-  {"id": 1, "message": "backend updated successfully", "service_name": "google-api-v2", "target_url": "http://demo-backend:8080"}
+  {
+    "id": 1, 
+    "message": "backend updated successfully", 
+    "service_name": "google-api-v2", 
+    "target_url": "http://demo-backend:8080"
+  }
 ```
 
 
@@ -859,7 +871,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 400 Bad Request ```
 -
 ```json
-  {"error": "service_name and target_url are required"}
+  {
+    "error": "service_name and target_url are required"
+  }
 ```
 
 
@@ -882,7 +896,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 400 Bad Request ```
 -
 ```json
-  {"error": "target_url must start with http:// or https://"}
+  {
+    "error": "target_url must start with http:// or https://"
+  }
 ```
 
 
@@ -905,7 +921,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 404 Not Found ```
 -
 ```json
-  {"error": "backend registration not found"}
+  {
+    "error": "backend registration not found"
+  }
 ```
 
 
@@ -919,7 +937,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 404 Not Found ```
 -
 ```json
-  {"error": "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."}
+  {
+    "error": "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
+  }
 ```
 - Confirms the global error handler returns JSON here, not Flask's default
   HTML error page — this is what a custom `@app.errorhandler(404)` produces.
@@ -945,7 +965,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 201 Created (fresh database) ```
 -
 ```json
-  {"email": "test@test.com", "id": 1}
+  {
+    "email": "test@test.com", "id": 1
+  }
 ```
 - Note: if this email is already registered (e.g. from a previous test run
   against the same database), this returns `409` with
@@ -973,7 +995,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 409 Conflict ```
 -
 ```json
-  {"error": "a user with this email already exists"}
+  {
+    "error": "a user with this email already exists"
+  }
 ```
 
 
@@ -1024,7 +1048,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 401 Unauthorized ```
 -
 ```json
-  {"error": "invalid email or password"}
+  {
+    "error": "invalid email or password"
+  }
 ```
 
 
@@ -1047,7 +1073,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 401 Unauthorized ```
 -
 ```json
-  {"error": "invalid email or password"}
+  {
+    "error": "invalid email or password"
+  }
 ```
 - Confirmed identical to Test 2.4's response — same message, same status,
   for both "wrong password" and "email doesn't exist." This is what prevents
@@ -1066,7 +1094,11 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 200 OK ```
 -
 ```json
-  {"email": "test@test.com", "user_id": 1, "valid": true}
+  {
+    "email": "test@test.com", 
+    "user_id": 1, 
+    "valid": true
+  }
 ```
 
 
@@ -1079,7 +1111,10 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 401 Unauthorized ```
 -
 ```json
-  {"error": "missing bearer token", "valid": false}
+  {
+    "error": "missing bearer token", 
+    "valid": false
+  }
 ```
 
 #### Test 2.7
@@ -1094,7 +1129,9 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 200 OK ```
 -
 ```json
-  {"message": "logged out"}
+  {
+    "message": "logged out"
+  }
 ```
 
 
@@ -1112,7 +1149,10 @@ the middleware resolves this from inside the Docker network.
 - status: ``` 401 Unauthorized ```
 -
 ```json
-  {"error": "session is not active", "valid": false}
+  {
+    "error": "session is not active", 
+    "valid": false
+  }
 ```
 - Confirms the token that passed validation in Test 2.5 is now correctly
   rejected — even though the JWT itself hasn't naturally expired yet, the
@@ -1150,7 +1190,11 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 200 OK ```
 -
 ```json
-  {"allowed": true, "attack_type": null, "reason": null}
+  {
+    "allowed": true, 
+    "attack_type": null, 
+    "reason": null
+  }
 ```
 - Confirms `attack_type` and `reason` are present as explicit `null` on a
   clean request, not omitted — the middleware relies on this guarantee.
@@ -1180,7 +1224,11 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 200 OK ```
 -
 ```json
-  {"allowed": false, "attack_type": "sqli", "reason": "SQL injection pattern detected"}
+  {
+    "allowed": false, 
+    "attack_type": "sqli", 
+    "reason": "SQL injection pattern detected"
+  }
 ```
 
 
@@ -1208,7 +1256,11 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 200 OK ```
 -
 ```json
-  {"allowed": false, "attack_type": "xss", "reason": "XSS pattern detected"}
+  {
+    "allowed": false, 
+    "attack_type": "xss", 
+    "reason": "XSS pattern detected"
+  }
 ```
 
 
@@ -1237,7 +1289,11 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 200 OK ```
 -
 ```json
-  {"allowed": false, "attack_type": "xss", "reason": "XSS pattern detected"}
+  {
+    "allowed": false, 
+    "attack_type": "xss", 
+    "reason": "XSS pattern detected"
+  }
 ```
 - Confirms the scanner reaches strings at any nesting depth, not just top-level
   fields — the XSS payload here is three levels deep (`body.user.profile.bio`).
@@ -1269,12 +1325,20 @@ is in the body (`"allowed": true/false`), not the status code.
 -
   Request #100 (still under the limit):
 ```json
-  {"allowed": true, "attack_type": null, "reason": null}
+  {
+    "allowed": true, 
+    "attack_type": null, 
+    "reason": null
+  }
 ```
 
   Request #101 (over the limit):
 ```json
-  {"allowed": false, "attack_type": "rate_limit", "reason": "Rate limit exceeded for this IP"}
+  {
+    "allowed": false, 
+    "attack_type": "rate_limit", 
+    "reason": "Rate limit exceeded for this IP"
+  }
 ```
 - Confirmed: `RATE_LIMIT_MAX_REQUESTS` default of 100 works exactly as
   documented — the 100th request still passes, the 101st is blocked.
@@ -1301,7 +1365,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 400 Bad Request ```
 -
 ```json
-  {"error": "Missing required fields: endpoint, method, ip"}
+  {
+    "error": "Missing required fields: endpoint, method, ip"
+  }
 ```
 
 ### middleware Tests
@@ -1317,7 +1383,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 401 Unauthorized ```
 -
 ```json
-  {"error": "Missing X-API-Key header"}
+  {
+    "error": "Missing X-API-Key header"
+  }
 ```
 
 #### Test 4.2
@@ -1332,7 +1400,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 404 Not Found ```
 -
 ```json
-  {"error": "Unknown API key"}
+  {
+    "error": "Unknown API key"
+  }
 ```
 
 
@@ -1348,7 +1418,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 401 Unauthorized ```
 -
 ```json
-  {"error": "Authorization header required"}
+  {
+    "error": "Authorization header required"
+  }
 ```
 
 
@@ -1366,7 +1438,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 401 Unauthorized ```
 -
 ```json
-  {"error": "Invalid or expired token"}
+  {
+    "error": "Invalid or expired token"
+  }
 ```
 - Note: this result reflects `{{token}}` having been revoked earlier by
   Test 2.7's logout — the middleware correctly propagates the users
@@ -1399,7 +1473,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 500 Internal Server Error ```
 -
 ```json
-  {"error": "Internal server error"}
+  {
+    "error": "Internal server error"
+  }
 ```
 - This `500` is expected in the current setup, not a failure. The
   registration in Test 1.1 points `target_url` at `http://demo-backend:8080`,
@@ -1434,7 +1510,10 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 403 Forbidden ```
 -
 ```json
-  {"attack_type": "sqli", "error": "Request blocked"}
+  {
+    "attack_type": "sqli", 
+    "error": "Request blocked"
+  }
 ```
 - Confirmed: `attack_type` is present, but `reason` is deliberately absent —
   the middleware doesn't expose which specific rule fired, unlike
@@ -1459,7 +1538,10 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 403 Forbidden ```
 -
 ```json
-  {"attack_type": "xss", "error": "Request blocked"}
+  {
+    "attack_type": "xss", 
+    "error": "Request blocked"
+  }
 ```
 - Confirms the scan reaches query parameters, not just JSON bodies — and
   again, `reason` is correctly omitted from the middleware's client-facing
@@ -1490,12 +1572,16 @@ is in the body (`"allowed": true/false`), not the status code.
   Early request (still under the limit — proxied all the way through to the
   real backend, which has no matching route):
 ```json
-  {"error": "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."}
+  {
+    "error": "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
+  }
 ```
 
   Request #101 (over the limit):
 ```json
-  {"attack_type": "rate_limit", "error": "Request blocked"}
+  {
+    "attack_type": "rate_limit", "error": "Request blocked"
+  }
 ```
 - Confirms the middleware correctly translates a rate-limit verdict into a
   real `429` for the client — unlike `security_engine`'s own `/analyze`
@@ -1520,11 +1606,10 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 200 OK ```
 -
 ```json
-  {"active": false, "id": 1, "message": "status updated successfully"}
+  {
+    "active": false, "id": 1, "message": "status updated successfully"
+  }
 ```
-
-  ```
-
 
 #### Test 4.9.2
 ##### Request
@@ -1541,7 +1626,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 403 Forbidden ```
 -
 ```json
-  {"error": "This backend's protection is currently paused"}
+  {
+    "error": "This backend's protection is currently paused"
+  }
 ```
 - Confirms a paused backend is blocked at stage 1 (backend_registry lookup)
   - before the request ever reaches users, security_engine, or the real
