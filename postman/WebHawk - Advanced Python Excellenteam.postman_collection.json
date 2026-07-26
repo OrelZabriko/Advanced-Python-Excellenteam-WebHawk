@@ -456,8 +456,28 @@
         {
           "name": "test #2.4b",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"nosuchuser@test.com\", \"password\": \"Secret123!\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8082/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "login"
+              ]
+            }
           },
           "response": []
         }
@@ -582,13 +602,7 @@
           "name": "test #3.4",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\r\n  \"endpoint\": \"/api/nested-test\",\r\n  \"method\": \"POST\",\r\n  \"ip\": \"10.0.0.4\",\r\n  \"headers\": {},\r\n  \"query_params\": {},\r\n  \"path_params\": {},\r\n  \"body\": {\"user\": {\"profile\": {\"bio\": \"<script>alert(1)</script>\"}}}\r\n}",
@@ -601,9 +615,13 @@
             "url": {
               "raw": "http://localhost:8081/analyze",
               "protocol": "http",
-              "host": [ "localhost" ],
+              "host": [
+                "localhost"
+              ],
               "port": "8081",
-              "path": [ "analyze" ]
+              "path": [
+                "analyze"
+              ]
             }
           },
           "response": []
@@ -611,8 +629,28 @@
         {
           "name": "test #3.6",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n      \"method\": \"GET\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/analyze",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "analyze"
+              ]
+            }
           },
           "response": []
         }
@@ -623,9 +661,21 @@
       "item": [
         {
           "name": "test #4.1",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "method": "GET",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "http://localhost:8080/api/anything",
               "protocol": "http",
@@ -710,7 +760,7 @@
               }
             ],
             "url": {
-              "raw": "GET http://localhost:8080/api/anything",
+              "raw": "http://localhost:8080/api/anything",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -923,7 +973,7 @@
         {
           "name": "test #4.9.2",
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "X-API-Key",
@@ -937,7 +987,7 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:8080/api/anything",
+              "raw": "http://localhost:8080/api/users/profile",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -945,7 +995,8 @@
               "port": "8080",
               "path": [
                 "api",
-                "anything"
+                "users",
+                "profile"
               ]
             }
           },
@@ -988,14 +1039,6 @@
           "response": []
         }
       ]
-    },
-    {
-      "name": "New Request",
-      "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
     }
   ],
   "event": [
