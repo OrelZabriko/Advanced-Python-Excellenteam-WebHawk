@@ -38,7 +38,13 @@ class SecurityService:
             r"(drop\s+table)",                      # DROP TABLE
             r"(;\s*(delete|drop|insert|update)\s)",# ; DELETE FROM / ; DROP ...
             r"('\s*;\s*--)",                       # '; --
-            r"(\b(select|insert|update|delete)\b.*\b(from|into|set)\b)", # SELECT ... FROM
+            # A SQL verb followed by FROM/INTO/SET, but only when a quote,
+            # semicolon or comment marker also appears - the characters an
+            # injection needs in order to break out of the surrounding query.
+            # Without that requirement this pattern also fires on ordinary
+            # prose that happens to contain a SQL keyword ("please delete this
+            # from my profile"), which is a false block on legitimate traffic.
+            r"(\b(select|insert|update|delete)\b.*[';]|--).*\b(from|into|set)\b",
             r"(1\s*=\s*1)",                        # 1=1
             r"('\s*or\s+'.*'\s*=\s*')",          # ' or 'a'='a'
         ]
@@ -80,17 +86,26 @@ class SecurityService:
         """
         Main entry point for the security engine.
         Receives the full JSON payload, runs SQLi + XSS + rate limit checks,
-        logs the result to logs_security, and returns a verdict dict.
+        logs the result to security_logs, and returns a verdict dict.
         """
         endpoint = payload.get("endpoint", "")
         method   = payload.get("method", "")
         ip       = payload.get("ip", "")
 
-        # Collect all string values from body, query_params, path_params
+        # Collect all string values from body, query_params, path_params, headers.
+        # The project spec's request-flow step lists all four surfaces
+        # ("WebHawk checks: Body, Query Params, Path Params, Headers"), so
+        # headers are scanned here too and not just the body and query string.
+        # A header value reaches the backend exactly like any other
+        # client-controlled input, and a payload placed in User-Agent, Referer
+        # or a custom header is just as reachable as one in a form field -
+        # leaving headers out means an attacker only has to move the payload
+        # one field over to skip every check below.
         all_texts = []
         all_texts.extend(_collect_all_strings(payload.get("query_params", {})))
         all_texts.extend(_collect_all_strings(payload.get("path_params", {})))
         all_texts.extend(_collect_all_strings(payload.get("body", {})))
+        all_texts.extend(_collect_all_strings(payload.get("headers", {})))
 
         # --- Check 1: SQL Injection ---
         for text in all_texts:
