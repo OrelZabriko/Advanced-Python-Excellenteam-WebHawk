@@ -1,4 +1,4 @@
-# WebHawk — Advanced Python Excellenteam Final Project
+# WebHawk - Advanced Python Excellenteam Final Project
 WebHawk is a security middleware platform: every incoming request is checked for
 SQL injection, XSS, and rate-limit abuse before it is forwarded to the real
 backend it protects.
@@ -66,19 +66,19 @@ path and method that reaches it goes through the pipeline above.
 | `security_engine` | `services/security_engine/` | 8081 | SQLi / XSS / rate-limit detection. |
 | `users` | `services/users/` | 8082 | Registration, login, JWT issue and revoke. |
 | `backend_registry` | `services/backend_registry/` | 8083 | Backend registration and API key issuance. |
-| `postgres` | — | 5432 | Shared database. |
+| `postgres` | - | 5432 | Shared database. |
 
 **On the port numbers:** each service has two ports that serve different
-purposes. The *host* port (in the table above — 8080/8081/8082/8083) is what
-you hit from outside Docker — Postman on Windows, or a browser. Every
-service's *internal* port — what it actually binds to inside its own
-container — is **8080**, regardless of which service it is. `security_engine`
+purposes. The *host* port (in the table above - 8080/8081/8082/8083) is what
+you hit from outside Docker - Postman on Windows, or a browser. Every
+service's *internal* port - what it actually binds to inside its own
+container - is **8080**, regardless of which service it is. `security_engine`
 listens on `0.0.0.0:8080` inside its container just like `users`
 does, even though its host port is 8081.
 
 This split matters once services start calling each other: traffic between
 containers on the same Docker network never goes through the host port
-mapping at all — a container reaches another container's own internal port
+mapping at all - a container reaches another container's own internal port
 directly. So when the middleware calls `http://security_engine:...`, that
 URL has to end in `:8080`, not `:8081`, even though `:8081` is what you'd
 use from Postman on the host. Getting this backwards is a common and
@@ -100,8 +100,8 @@ service.
 
 ## Prerequisites
 
-- **Python 3.12** — [python.org/downloads](https://www.python.org/downloads/)
-- **Docker Desktop** — [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+- **Python 3.12** - [python.org/downloads](https://www.python.org/downloads/)
+- **Docker Desktop** - [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
 - **Git**
 
 ### On the Python version
@@ -110,7 +110,7 @@ All four `Dockerfile`s pin `FROM python:3.12-slim`, so 3.12 is what actually
 runs in every container. Matching it locally means your editor checks your code
 against the same version that will run it.
 
-**Any 3.12.x patch release is fine** — 3.12.0, 3.12.10, whatever your OS
+**Any 3.12.x patch release is fine** - 3.12.0, 3.12.10, whatever your OS
 installs. The project uses no version-specific syntax (no `match`, no `X | Y`
 type unions), so the patch number genuinely doesn't matter. Don't hunt for one
 specific build.
@@ -119,14 +119,14 @@ specific build.
 
 | Environment | How |
 |---|---|
-| Windows (PowerShell or CMD) | Run the installer from python.org. **Tick "Add Python to PATH"** — without it, `python` is not found in a new terminal. |
-| macOS | `brew install python@3.12` — the system Python is old and managed by Apple; don't use it. |
+| Windows (PowerShell or CMD) | Run the installer from python.org. **Tick "Add Python to PATH"** - without it, `python` is not found in a new terminal. |
+| macOS | `brew install python@3.12` - the system Python is old and managed by Apple; don't use it. |
 | Linux | `sudo apt install python3.12 python3.12-venv` (Debian/Ubuntu) |
 
 #### `python` vs `python3`
 
 On Windows the command is `python`. On macOS and Linux the command is
-`python3` — plain `python` is either missing or points at Python 2.
+`python3` - plain `python` is either missing or points at Python 2.
 
 This only matters **until the venv is activated**. Inside an active venv,
 `python` works on every platform, which is why every command after Setup
@@ -183,7 +183,7 @@ cd Advanced-Python-Excellenteam-WebHawk
 
 ### 2. Create and activate a virtual environment, then install requirements
 
-Do this **before** running anything else — even if you plan to run the whole
+Do this **before** running anything else - even if you plan to run the whole
 system through Docker. Two reasons it matters regardless of Docker:
 
 - VS Code and PyCharm both need a real interpreter with the packages installed
@@ -191,7 +191,7 @@ system through Docker. Two reasons it matters regardless of Docker:
   every `from services.shared...` import shows as unresolved in the editor,
   even though it works fine at runtime.
 - Running a single service natively for debugging (see "Debugging a single
-  service natively" below) runs it on your machine, not inside a container —
+  service natively" below) runs it on your machine, not inside a container -
   it needs the venv active to find its dependencies.
 
 All three steps, per environment. Steps 1 and 3 run **once**; step 2 has to be
@@ -236,12 +236,12 @@ pip install -r requirements.txt
 You'll know the venv is active because the prompt shows `(.venv)` at the start
 of the line. Leave it active for every step below.
 
-Note step 1 uses `python3` on macOS/Linux but `python` on Windows — that is the
+Note step 1 uses `python3` on macOS/Linux but `python` on Windows - that is the
 `python` vs `python3` split described in Prerequisites. Steps 2 and 3, and
 everything after this point, are the same everywhere, because an active venv
 provides `python` and `pip` on all platforms.
 
-**PowerShell only — if activation is blocked** with an execution-policy error,
+**PowerShell only - if activation is blocked** with an execution-policy error,
 allow it for the current session:
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
@@ -252,7 +252,7 @@ macOS/Linux have no equivalent restriction.
 > **What's actually in `requirements.txt`?** Flask (the web framework),
 > psycopg2-binary (Postgres driver), bcrypt (password hashing), PyJWT (token
 > signing), python-dotenv (`.env` loading), requests (the middleware's HTTP
-> client to the other services), and gunicorn — see the callout below for
+> client to the other services), and gunicorn - see the callout below for
 > what that last one is and why it only matters inside Docker.
 
 ### 3. Create your `.env`
@@ -277,7 +277,7 @@ cp .env.example .env
 
 Then open `.env` and set at minimum `DB_USER`, `DB_PASSWORD`, and `JWT_SECRET`.
 
-Generate a real JWT secret rather than typing one — humans are bad at being
+Generate a real JWT secret rather than typing one - humans are bad at being
 random, and every token the system signs is only as safe as this value:
 
 **PowerShell**
@@ -298,7 +298,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 This uses the Python you already installed, so it needs nothing extra and
 behaves identically everywhere. `openssl rand -base64 32` produces an equally
 good secret on macOS/Linux, but `openssl` is not present on Windows by
-default — the Python one-liner avoids that split.
+default - the Python one-liner avoids that split.
 
 **`.env` syntax rule:** each line must be `KEY=VALUE`, with no spaces around
 `=` and no trailing comment on a value line. `DB_HOST=postgres # docker` is
@@ -329,10 +329,10 @@ Postgres automatically from the `.sql` files in `db/`.
 ### Resetting completely
 
 Drops all users, registrations, logs and rate-limit counters. The `-v` flag is
-what removes the Postgres volume — without it, old rows survive across
+what removes the Postgres volume - without it, old rows survive across
 restarts, which will make rate-limit tests behave unexpectedly.
 
-**PowerShell** — run as two separate commands. Windows PowerShell 5.1, the
+**PowerShell** - run as two separate commands. Windows PowerShell 5.1, the
 version that ships with Windows, does not support `&&` and reports
 "The token '&&' is not a valid statement separator". PowerShell 7 does support
 it, but two lines work in both:
@@ -355,18 +355,18 @@ docker compose down -v && docker compose up --build
 
 ## What is gunicorn, and why does it only matter in Docker?
 
-Flask's own `app.run()` — the "development server" — is single-threaded by
+Flask's own `app.run()` - the "development server" - is single-threaded by
 default: it handles one request at a time, and Flask itself prints a warning
 that it's not meant for production. **gunicorn** is a real WSGI server: it
 runs several worker processes (`--workers 4` in the Dockerfiles) so multiple
 requests are handled in parallel, and it restarts a worker automatically if
 one crashes.
 
-gunicorn depends on `fcntl`, a module that only exists on Unix/Linux — it
+gunicorn depends on `fcntl`, a module that only exists on Unix/Linux - it
 **cannot run natively on Windows at all**. That's fine, because:
 
 - **Inside Docker**, the container is always Linux (even when Docker Desktop
-  runs on a Windows host), so gunicorn works exactly as intended — this is
+  runs on a Windows host), so gunicorn works exactly as intended - this is
   what actually runs in `docker compose up`.
 - **Running natively on Windows** (see "Debugging a single service
   natively" below), you use Flask's own dev server
@@ -377,7 +377,7 @@ gunicorn depends on `fcntl`, a module that only exists on Unix/Linux — it
 
 ## API reference
 
-### middleware — `localhost:8080`
+### middleware - `localhost:8080`
 
 Accepts any path and any method. Two headers are required on every request.
 
@@ -395,31 +395,31 @@ Accepts any path and any method. Two headers are required on every request.
 | `429` | Blocked as `rate_limit`. |
 | `500` | An internal service was unreachable or failed. |
 
-A blocked response is deliberately generic — it names the `attack_type` but
+A blocked response is deliberately generic - it names the `attack_type` but
 never the specific rule that fired.
 
-### backend_registry — `localhost:8083`
+### backend_registry - `localhost:8083`
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
 | `POST` | `/backends` | `{service_name, target_url}` | `201` with the full registration **including `api_key`** |
-| `GET` | `/backends/lookup?api_key=...` | — | `200` with `{found, service_name, target_url, active}` |
-| `GET` | `/backends` | — | `200` with all registrations, **never including `api_key`** |
+| `GET` | `/backends/lookup?api_key=...` | - | `200` with `{found, service_name, target_url, active}` |
+| `GET` | `/backends` | - | `200` with all registrations, **never including `api_key`** |
 | `PUT` | `/backends/{id}` | `{service_name, target_url}` | `200`, or `404` if no such id |
 | `PATCH` | `/backends/{id}/status` | `{active: true\|false}` | `200`, or `404` if no such id |
 
 `GET /backends/lookup` returns `200` with `{"found": false}` for an unknown key
-— not `404`. Per Contract B, "not found" is a normal business outcome for this
+- not `404`. Per Contract B, "not found" is a normal business outcome for this
 endpoint, not an HTTP error.
 
 `PATCH .../status` is how a developer pauses protection without deleting the
 registration. While paused, the middleware refuses requests for that backend
 with `403`.
 
-`target_url` must start with `http://` or `https://` — anything else is
+`target_url` must start with `http://` or `https://` - anything else is
 rejected with `400`.
 
-### users — `localhost:8082`
+### users - `localhost:8082`
 
 | Method | Path | Body / Header | Returns |
 |---|---|---|---|
@@ -429,21 +429,21 @@ rejected with `400`.
 | `GET` | `/validate` | `Authorization: Bearer <jwt>` | `200` with `{valid, user_id, email}`, or `401` |
 
 Wrong password and unknown email both return the same `401` message. This is
-deliberate — a different message for each would let anyone enumerate which
+deliberate - a different message for each would let anyone enumerate which
 email addresses are registered.
 
 `/validate` checks more than the JWT's own signature and expiry: it also
 confirms the matching row in `user_sessions` is still `active`. That is what
-makes `/logout` meaningful — a token can be invalidated before it naturally
+makes `/logout` meaningful - a token can be invalidated before it naturally
 expires, which a signature check alone could never do.
 
-### security_engine — `localhost:8081`
+### security_engine - `localhost:8081`
 
 | Method | Path | Returns |
 |---|---|---|
 | `POST` | `/analyze` | `200` with a verdict, or `400` if malformed |
 
-Note `/analyze` always returns `200` when it can evaluate the request — the
+Note `/analyze` always returns `200` when it can evaluate the request - the
 verdict is in the body, not the status code. It is the *middleware* that turns
 a `{"allowed": false}` verdict into a `403`/`429` for the client.
 
@@ -471,7 +471,7 @@ Response:
 {"allowed": true, "attack_type": null, "reason": null}
 ```
 
-`attack_type` and `reason` are **always present** — as explicit `null` on a
+`attack_type` and `reason` are **always present** - as explicit `null` on a
 clean request, never omitted. The middleware relies on that guarantee, so a
 missing key and an explicit `null` are not interchangeable here.
 
@@ -484,13 +484,13 @@ missing key and an explicit `null` are not interchangeable here.
   deliberately slow cost factor are what make hashes resistant to brute-force
   and rainbow-table attacks.
 - **All SQL uses parameterised queries** (`%s` placeholders passed to
-  `cur.execute`). No query in this project is built by string concatenation —
+  `cur.execute`). No query in this project is built by string concatenation -
   which matters more than usual here, given that the whole point of the product
   is blocking SQL injection.
 - **API keys are shown exactly once**, at creation time (`POST /backends`).
-  `GET /backends` never returns `api_key` for any registration — otherwise
+  `GET /backends` never returns `api_key` for any registration - otherwise
   anyone with list access could read out every backend's live credential. The
-  key itself is `secrets.token_hex(16)` — 128 bits from the OS's cryptographic
+  key itself is `secrets.token_hex(16)` - 128 bits from the OS's cryptographic
   random source, not Python's `random` module, which is deterministic and
   unsuitable for anything security-sensitive.
 - **The middleware identifies the target backend via an `X-API-Key` header.**
@@ -502,7 +502,7 @@ missing key and an explicit `null` are not interchangeable here.
   bypass authentication entirely just by omitting it.
 - **Every internal HTTP call has an explicit 5-second timeout**
   (`INTERNAL_CALL_TIMEOUT_SECS` in `middleware/clients/service_endpoints.py`).
-  `requests` has **no** default timeout — without an explicit value, one hung
+  `requests` has **no** default timeout - without an explicit value, one hung
   service or one slow real backend would tie up the request indefinitely
   instead of failing fast with a 500.
 - **Internal error details never reach the client.** A failed internal call is
@@ -517,7 +517,7 @@ missing key and an explicit `null` are not interchangeable here.
   decompress plain text. Any real backend behind nginx or a CDN gzips by
   default, so this is the common case, not an edge case.
 - **`user_sessions.token_id` stores the JWT's `jti` claim, not the token
-  itself.** A `jti` is a UUID — always 36 characters, so `VARCHAR(255)` has
+  itself.** A `jti` is a UUID - always 36 characters, so `VARCHAR(255)` has
   ample room. Storing whole tokens instead would mean anyone with read access
   to that table holds working credentials for every logged-in user.
 - **Every JWT carries a random `jti` claim.** Without it, two logins by the
@@ -527,7 +527,7 @@ missing key and an explicit `null` are not interchangeable here.
 - **Every service installs global error handlers**
   (`register_error_handlers` in each `app.py`, from
   `services/shared/error_handlers.py`). These guarantee every response carries
-  a JSON body — including the 404/405 Flask raises before routing, and any
+  a JSON body - including the 404/405 Flask raises before routing, and any
   exception a route did not anticipate. Exception text is logged server-side
   and never returned, since a psycopg2 error routinely contains the database
   host, port and user.
@@ -539,7 +539,7 @@ missing key and an explicit `null` are not interchangeable here.
   ```
   python -c "import secrets; print(secrets.token_urlsafe(32))"
   ```
-- **Same fail-fast applies to `JWT_ALGORITHM`** — only `HS256`, `HS384` and
+- **Same fail-fast applies to `JWT_ALGORITHM`** - only `HS256`, `HS384` and
   `HS512` are supported. Anything else, including asymmetric algorithms like
   `RS256`, makes users refuse to start. Asymmetric algorithms need a
   public/private key pair rather than the single shared secret this project
@@ -568,7 +568,7 @@ RATE_LIMIT_MAX_REQUESTS=100
 RATE_LIMIT_WINDOW_SECS=60
 ```
 
-All of it is read in one place — `services/shared/config.py` — by
+All of it is read in one place - `services/shared/config.py` - by
 `python-dotenv`'s `load_dotenv()`, which injects each line into `os.environ`;
 `Config` then reads them with `os.getenv`. Which settings each service
 actually *uses*:
@@ -586,25 +586,25 @@ structural facts about how Compose wires the network together, not
 per-environment settings.
 
 **`DB_HOST=postgres`** because the project runs under Docker Compose by
-default — `postgres` is the Compose service name, resolved by Docker's
+default - `postgres` is the Compose service name, resolved by Docker's
 internal DNS. Override it to `127.0.0.1` only if you are running a service
 natively for debugging.
 
 **`.env` is read by two independent mechanisms.** First, `load_dotenv()` in
 `config.py`, used by each Flask service at runtime. Second, **Docker Compose
 itself**, which substitutes `${VAR}` anywhere in `docker-compose.yml` from a
-file literally named `.env` at the repo root — a built-in Compose feature, not
+file literally named `.env` at the repo root - a built-in Compose feature, not
 something this project added. That is how `postgres`'s own
 `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` avoid being hardcoded.
 
-**`.env` syntax rule:** each line must be `KEY=VALUE` only — no spaces around
+**`.env` syntax rule:** each line must be `KEY=VALUE` only - no spaces around
 `=`, no trailing comment on a value line. Because two different parsers read
 this file (python-dotenv and Compose's own Go parser), and they do not agree
 in the edge cases, the safe rule is the intersection: plain `KEY=VALUE`, with
 comments only on their own lines.
 
 **`.dockerignore`** (repo root) exists so `.env` never gets baked into an
-image. `.gitignore` only controls what goes into *git* — it has no effect on
+image. `.gitignore` only controls what goes into *git* - it has no effect on
 what `COPY` puts inside an image.
 
 **Line endings:** `.gitattributes` forces `eol=lf` on all text files. A
@@ -619,7 +619,7 @@ The window is applied directly in seconds all the way through `Config` →
 minutes happens anywhere.
 
 `make_interval`'s `mins` parameter only accepts whole integers, so expressing
-the window in minutes would force integer division somewhere — and that
+the window in minutes would force integer division somewhere - and that
 rounding is silent:
 
 - `RATE_LIMIT_WINDOW_SECS=90` → `90 / 60 = 1` minute → real window silently
@@ -639,11 +639,11 @@ Schema lives in `db/` as plain `.sql` files, loaded automatically by the
 
 | Table | Owner | Purpose |
 |---|---|---|
-| `users` | users | One row per account. `password_hash` holds a bcrypt hash, which embeds its own salt — no separate salt column needed. |
+| `users` | users | One row per account. `password_hash` holds a bcrypt hash, which embeds its own salt - no separate salt column needed. |
 | `user_sessions` | users | One row per login. Lets a JWT be revoked before it expires. |
 | `backend_registration` | backend_registry | One row per protected backend. `api_key` is `UNIQUE`, which also gives lookups their index for free. |
-| `logs_security` | security_engine | Audit trail of every analysed request, clean or blocked. |
-| `limit_rate` | security_engine | Running request counter per IP per endpoint. `UNIQUE(ip, endpoint)` means one row per pair, updated in place. |
+| `security_logs` | security_engine | Audit trail of every analysed request, clean or blocked. |
+| `rate_limit` | security_engine | Running request counter per IP per endpoint. `UNIQUE(ip, endpoint)` means one row per pair, updated in place. |
 
 The whole `db/` folder is mounted at once, so Postgres runs the files in
 alphabetical order. That is safe here because no table references another with
@@ -658,7 +658,7 @@ reload.
 ## Debugging a single service natively (optional)
 
 Only needed to run one service directly on your machine, outside Docker, for
-faster iteration with a debugger attached — not the normal way to use the
+faster iteration with a debugger attached - not the normal way to use the
 project.
 
 Step 3 is an edit to `.env`, not a command: set `DB_HOST=127.0.0.1` instead of
@@ -708,7 +708,7 @@ it there automatically.
 
 Every service listens on 8080, hardcoded in its own `app.py`. Outside Docker
 there is no container isolation, so **only run one service natively at a
-time** — a second would fail to bind to the same port.
+time** - a second would fail to bind to the same port.
 
 `gunicorn` will not work here (it depends on `fcntl`, which is Unix-only), so
 this runs Flask's own development server. That is exactly what you want for
@@ -723,7 +723,7 @@ working. The tests are numbered by service so a failure points at one place:
 `1.x` backend_registry, `2.x` users, `3.x` security_engine, `4.x` the full
 pipeline through the middleware.
 
-Run them in order — `1.1` produces the `api_key` that `4.x` needs, and `2.3`
+Run them in order - `1.1` produces the `api_key` that `4.x` needs, and `2.3`
 produces the `token`. In Postman, save both as **collection variables** so
 `{{api_key}}` and `{{token}}` resolve in later requests.
 
@@ -731,7 +731,7 @@ produces the `token`. In Postman, save both as **collection variables** so
 whatever `target_url` the backend was registered with, so that URL has to
 actually answer or step 4 has nothing to reach. There is no dedicated demo
 backend in this project, so the simplest working choice is another service on
-the same Docker network — `http://users:8080` — which means a request to
+the same Docker network - `http://users:8080` - which means a request to
 `/validate` through the middleware ends up at `http://users:8080/validate`.
 Note it must be the *internal* address (`users:8080`), not `localhost:8082`:
 the middleware resolves this from inside the Docker network.
@@ -744,7 +744,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8083/backends ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -801,7 +801,7 @@ the middleware resolves this from inside the Docker network.
     "found": false
   }
 ```
-- Confirms an unknown key returns `200` with `found: false`, not a `404` —
+- Confirms an unknown key returns `200` with `found: false`, not a `404` -
   "not found" is a normal business outcome here, per Contract B.
 
 
@@ -823,6 +823,7 @@ the middleware resolves this from inside the Docker network.
   }
 ```
 - Confirmed: `api_key` does NOT appear in either entry, as expected.
+- In this case, same backend registered twice.
 
 
 #### Test 1.5
@@ -830,7 +831,7 @@ the middleware resolves this from inside the Docker network.
 - Method: PUT
 - URL: ``` http://localhost:8083/backends/1 ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -858,7 +859,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8083/backends ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -882,7 +883,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8083/backends ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -907,7 +908,7 @@ the middleware resolves this from inside the Docker network.
 - Method: PUT
 - URL: ``` http://localhost:8083/backends/9999 ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -942,7 +943,7 @@ the middleware resolves this from inside the Docker network.
   }
 ```
 - Confirms the global error handler returns JSON here, not Flask's default
-  HTML error page — this is what a custom `@app.errorhandler(404)` produces.
+  HTML error page - this is what a custom `@app.errorhandler(404)` produces.
 
 
 ### users Tests
@@ -951,7 +952,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8082/register ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -966,12 +967,13 @@ the middleware resolves this from inside the Docker network.
 -
 ```json
   {
-    "email": "test@test.com", "id": 1
+    "email": "test@test.com", 
+    "id": 1
   }
 ```
 - Note: if this email is already registered (e.g. from a previous test run
   against the same database), this returns `409` with
-  `{"error": "a user with this email already exists"}` instead — that is
+  `{"error": "a user with this email already exists"}` instead - that is
   Test 2.2's expected behavior, not a bug. Reset the database
   (`docker compose down -v`) before a full re-run if you want a clean `201` here.
 
@@ -981,7 +983,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8082/register ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1006,7 +1008,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8082/login ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1033,7 +1035,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8082/login ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1059,7 +1061,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8082/login ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1077,7 +1079,7 @@ the middleware resolves this from inside the Docker network.
     "error": "invalid email or password"
   }
 ```
-- Confirmed identical to Test 2.4's response — same message, same status,
+- Confirmed identical to Test 2.4's response - same message, same status,
   for both "wrong password" and "email doesn't exist." This is what prevents
   email enumeration via the login endpoint.
 
@@ -1087,7 +1089,7 @@ the middleware resolves this from inside the Docker network.
 - Method: GET
 - URL: ``` http://localhost:8082/validate ```
 - Headers:
-    KEY: ``` Authorization ```
+    KEY: ``` Authorization ```  
     VALUE: ``` Bearer {{token}} ```
 
 ##### Response
@@ -1122,7 +1124,7 @@ the middleware resolves this from inside the Docker network.
 - Method: POST
 - URL: ``` http://localhost:8082/logout ```
 - Headers:
-    KEY: ``` Authorization ```
+    KEY: ``` Authorization ```  
     VALUE: ``` Bearer {{token}} ```
 
 ##### Response
@@ -1140,7 +1142,7 @@ the middleware resolves this from inside the Docker network.
 - Method: GET
 - URL: ``` http://localhost:8082/validate ```
 - Headers:
-    KEY: ``` Authorization ```
+    KEY: ``` Authorization ```  
     VALUE: ``` Bearer {{token}} ```
 - The same token that worked in 2.5. It must now fail - that is what proves
   logout revokes a token before it naturally expires.
@@ -1155,14 +1157,14 @@ the middleware resolves this from inside the Docker network.
   }
 ```
 - Confirms the token that passed validation in Test 2.5 is now correctly
-  rejected — even though the JWT itself hasn't naturally expired yet, the
+  rejected - even though the JWT itself hasn't naturally expired yet, the
   underlying session was revoked by logout. This is the whole point of
   tracking sessions server-side rather than relying on JWT expiry alone.
 
 
 ### security_engine Tests
 
-Note: `/analyze` returns `200` for every request it can evaluate — the verdict
+Note: `/analyze` returns `200` for every request it can evaluate - the verdict
 is in the body (`"allowed": true/false`), not the status code.
 
 #### Test 3.1
@@ -1170,7 +1172,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: POST
 - URL: ``` http://localhost:8081/analyze ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1197,7 +1199,7 @@ is in the body (`"allowed": true/false`), not the status code.
   }
 ```
 - Confirms `attack_type` and `reason` are present as explicit `null` on a
-  clean request, not omitted — the middleware relies on this guarantee.
+  clean request, not omitted - the middleware relies on this guarantee.
 
 
 #### Test 3.2
@@ -1205,7 +1207,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: POST
 - URL: ``` http://localhost:8081/analyze ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1237,7 +1239,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: POST
 - URL: ``` http://localhost:8081/analyze ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1269,7 +1271,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: POST
 - URL: ``` http://localhost:8081/analyze ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1296,14 +1298,14 @@ is in the body (`"allowed": true/false`), not the status code.
   }
 ```
 - Confirms the scanner reaches strings at any nesting depth, not just top-level
-  fields — the XSS payload here is three levels deep (`body.user.profile.bio`).
+  fields - the XSS payload here is three levels deep (`body.user.profile.bio`).
 
 #### Test 3.5
 ##### Request
 - Method: POST
 - URL: ``` http://localhost:8081/analyze ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body: send this the number of times set in `RATE_LIMIT_MAX_REQUESTS` plus one
   (default 101). Postman's Collection Runner with an iteration count is the
@@ -1321,7 +1323,7 @@ is in the body (`"allowed": true/false`), not the status code.
   ```
 
 ##### Response
-- status: ``` 200 OK (both, per Contract A — verdict is in the body) ```
+- status: ``` 200 OK (both, per Contract A - verdict is in the body) ```
 -
   Request #100 (still under the limit):
 ```json
@@ -1341,7 +1343,7 @@ is in the body (`"allowed": true/false`), not the status code.
   }
 ```
 - Confirmed: `RATE_LIMIT_MAX_REQUESTS` default of 100 works exactly as
-  documented — the 100th request still passes, the 101st is blocked.
+  documented - the 100th request still passes, the 101st is blocked.
   `/analyze` itself returns `200` in both cases; it's the *middleware*
   that would translate a blocked verdict into a client-facing `429`.
 
@@ -1351,7 +1353,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: POST
 - URL: ``` http://localhost:8081/analyze ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1376,7 +1378,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: GET
 - URL: ``` http://localhost:8080/api/anything ```
 - No headers at all.
-- Tests the real middleware pipeline (not `/validate` in isolation) — this
+- Tests the real middleware pipeline (not `/validate` in isolation) - this
   hits the middleware's catch-all proxy route directly.
 
 ##### Response
@@ -1393,7 +1395,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: GET
 - URL: ``` http://localhost:8080/api/anything ```
 - Headers:
-    KEY: ``` X-API-Key ```
+    KEY: ``` X-API-Key ```  
     VALUE: ``` whk_live_fake123 ```
 
 ##### Response
@@ -1405,12 +1407,12 @@ is in the body (`"allowed": true/false`), not the status code.
   }
 ```
 
-
+#### Test 4.3
 ##### Request
 - Method: GET
 - URL: ``` http://localhost:8080/api/anything ```
 - Headers:
-    KEY: ``` X-API-Key ```
+    KEY: ``` X-API-Key ```  
     VALUE: ``` {{api_key}} ```
 - Valid key, but no Authorization header.
 
@@ -1429,9 +1431,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: GET
 - URL: ``` http://localhost:8080/api/anything ```
 - Headers:
-    KEY-1: ``` X-API-Key ```
-    VALUE-1: ``` {{api_key}} ```
-    KEY-2: ``` Authorization ```
+    KEY-1: ``` X-API-Key ```  
+    VALUE-1: ``` {{api_key}} ```  
+    KEY-2: ``` Authorization ```  
     VALUE-2: ``` Bearer {{token}} ```
 
 ##### Response
@@ -1443,7 +1445,7 @@ is in the body (`"allowed": true/false`), not the status code.
   }
 ```
 - Note: this result reflects `{{token}}` having been revoked earlier by
-  Test 2.7's logout — the middleware correctly propagates the users
+  Test 2.7's logout - the middleware correctly propagates the users
   service's session-revocation check through the full pipeline. Log in
   again (Test 2.3) to refresh `{{token}}` with an active session before
   running Test 4.5 onward, which expect a valid, non-revoked token.
@@ -1454,11 +1456,11 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: POST
 - URL: ``` http://localhost:8080/api/users/profile ```
 - Headers:
-    KEY-1: ``` X-API-Key ```
-    VALUE-1: ``` {{api_key}} ```
-    KEY-2: ``` Authorization ```
-    VALUE-2: ``` Bearer {{token}} ```
-    KEY-3: ``` Content-Type ```
+    KEY-1: ``` X-API-Key ```  
+    VALUE-1: ``` {{api_key}} ```  
+    KEY-2: ``` Authorization ```  
+    VALUE-2: ``` Bearer {{token}} ```  
+    KEY-3: ``` Content-Type ```  
     VALUE-3: ``` application/json ```
 - Body:
 {
@@ -1492,11 +1494,11 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: POST
 - URL: ``` http://localhost:8080/api/users/search ```
 - Headers:
-    KEY-1: ``` X-API-Key ```
-    VALUE-1: ``` {{api_key}} ```
-    KEY-2: ``` Authorization ```
-    VALUE-2: ``` Bearer {{token}} ```
-    KEY-3: ``` Content-Type ```
+    KEY-1: ``` X-API-Key ```  
+    VALUE-1: ``` {{api_key}} ```  
+    KEY-2: ``` Authorization ```  
+    VALUE-2: ``` Bearer {{token}} ```  
+    KEY-3: ``` Content-Type ```  
     VALUE-3: ``` application/json ```
 - Body:
   ```
@@ -1515,13 +1517,11 @@ is in the body (`"allowed": true/false`), not the status code.
     "error": "Request blocked"
   }
 ```
-- Confirmed: `attack_type` is present, but `reason` is deliberately absent —
+- Confirmed: `attack_type` is present, but `reason` is deliberately absent -
   the middleware doesn't expose which specific rule fired, unlike
   `security_engine`'s own `/analyze` response (Test 3.2), which does include
   a `reason`. This prevents an attacker from learning the exact detection
   logic through trial and error.
-
-  ```
 
 
 #### Test 4.7
@@ -1529,9 +1529,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: GET
 - URL: ``` http://localhost:8080/api/comments?text=<script>alert(1)</script> ```
 - Headers:
-    KEY-1: ``` X-API-Key ```
-    VALUE-1: ``` {{api_key}} ```
-    KEY-2: ``` Authorization ```
+    KEY-1: ``` X-API-Key ```  
+    VALUE-1: ``` {{api_key}} ```  
+    KEY-2: ``` Authorization ```  
     VALUE-2: ``` Bearer {{token}} ```
 
 ##### Response
@@ -1543,7 +1543,7 @@ is in the body (`"allowed": true/false`), not the status code.
     "error": "Request blocked"
   }
 ```
-- Confirms the scan reaches query parameters, not just JSON bodies — and
+- Confirms the scan reaches query parameters, not just JSON bodies - and
   again, `reason` is correctly omitted from the middleware's client-facing
   response.
 
@@ -1553,9 +1553,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: GET
 - URL: ``` http://localhost:8080/api/ratelimit-e2e ```
 - Headers:
-    KEY-1: ``` X-API-Key ```
-    VALUE-1: ``` {{api_key}} ```
-    KEY-2: ``` Authorization ```
+    KEY-1: ``` X-API-Key ```  
+    VALUE-1: ``` {{api_key}} ```  
+    KEY-2: ``` Authorization ```  
     VALUE-2: ``` Bearer {{token}} ```
 - Send this the number of times set in `RATE_LIMIT_MAX_REQUESTS` plus one
   (default 101), through the full middleware pipeline this time, not
@@ -1569,7 +1569,7 @@ is in the body (`"allowed": true/false`), not the status code.
 ##### Response
 - status: ``` 404 (requests 1-100) / 429 (request 101) ```
 -
-  Early request (still under the limit — proxied all the way through to the
+  Early request (still under the limit - proxied all the way through to the
   real backend, which has no matching route):
 ```json
   {
@@ -1580,11 +1580,12 @@ is in the body (`"allowed": true/false`), not the status code.
   Request #101 (over the limit):
 ```json
   {
-    "attack_type": "rate_limit", "error": "Request blocked"
+    "attack_type": "rate_limit", 
+    "error": "Request blocked"
   }
 ```
 - Confirms the middleware correctly translates a rate-limit verdict into a
-  real `429` for the client — unlike `security_engine`'s own `/analyze`
+  real `429` for the client - unlike `security_engine`'s own `/analyze`
   (Test 3.5), which always returns `200` with the verdict in the body.
 
 
@@ -1593,7 +1594,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: PATCH
 - URL: ``` http://localhost:8083/backends/1/status ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1607,7 +1608,9 @@ is in the body (`"allowed": true/false`), not the status code.
 -
 ```json
   {
-    "active": false, "id": 1, "message": "status updated successfully"
+    "active": false, 
+    "id": 1, 
+    "message": "status updated successfully"
   }
 ```
 
@@ -1616,9 +1619,9 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: GET
 - URL: ``` http://localhost:8080/validate ```
 - Headers:
-    KEY-1: ``` X-API-Key ```
-    VALUE-1: ``` {{api_key}} ```
-    KEY-2: ``` Authorization ```
+    KEY-1: ``` X-API-Key ```  
+    VALUE-1: ``` {{api_key}} ```  
+    KEY-2: ``` Authorization ```  
     VALUE-2: ``` Bearer {{token}} ```
 - Same request as 4.5, but the backend is now paused.
 
@@ -1641,7 +1644,7 @@ is in the body (`"allowed": true/false`), not the status code.
 - Method: PATCH
 - URL: ``` http://localhost:8083/backends/1/status ```
 - Headers:
-    KEY: ``` Content-Type ```
+    KEY: ``` Content-Type ```  
     VALUE: ``` application/json ```
 - Body:
   ```
@@ -1655,6 +1658,10 @@ is in the body (`"allowed": true/false`), not the status code.
 - status: ``` 200 OK ```
 -
 ```json
-  {"active": true, "id": 1, "message": "status updated successfully"}
+  {
+    "active": true, 
+    "id": 1, 
+    "message": "status updated successfully"
+  }
 ```
 - Backend re-enabled - the collection can now be re-run from the start.

@@ -103,11 +103,30 @@ def _call_analyze(req: Request, target_url: str):
             json=payload,
             timeout=service_endpoints.INTERNAL_CALL_TIMEOUT_SECS,
         )
-        result = response.json()
     except requests.RequestException as e:
         return _internal_error(f"security_engine unreachable or timed out: {e}")
+
+    # A 5xx means the analysis never ran at all - which is a different thing
+    # from it running and returning a "blocked" verdict. Without this check
+    # the error body falls through to result.get("allowed") below, where a
+    # missing key is falsy, so an internal outage would reach the client as a
+    # 403 "Request blocked" with a null attack_type: the wrong category of
+    # answer, and one that hides the real failure. _validate_jwt already
+    # guards this way; the same guard belongs here.
+    if response.status_code >= 500:
+        return _internal_error("security_engine returned an internal error")
+
+    try:
+        result = response.json()
     except ValueError:
         return _internal_error("security_engine returned a non-JSON response")
+
+    # Anything that isn't an object carrying an "allowed" key is a response
+    # this code has no way to interpret. Failing here is deliberate: silently
+    # treating an unreadable verdict as "blocked" would turn a contract
+    # regression into a stream of 403s that look like real detections.
+    if not isinstance(result, dict) or "allowed" not in result:
+        return _internal_error("security_engine returned an unexpected response shape")
 
     if not result.get("allowed"):
         # .get() rather than ["attack_type"]: Contract A says the key is
